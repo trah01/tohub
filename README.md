@@ -64,6 +64,8 @@ https://proxy.example.com/github/trah01
 
 首页转换框支持 `github.com/trah01`、`https://github.com/trah01` 和 `trah01/hubproxy`。
 
+GitHub 页面中的静态资源和 Release 下载会通过 `/_hubproxy/<host>/...` 进行中转。该通道仅允许 GitHub 相关域名，避免成为开放代理。
+
 ## Cloudflare Worker
 
 `worker.js` 是独立版本，可直接作为 Cloudflare Worker 脚本部署。
@@ -77,5 +79,5 @@ Worker 版本同样支持：
 ## 注意事项
 
 - Docker 代理主要用于拉取镜像，不支持镜像推送。
-- GitHub 页面代理会重写部分 `github.com` 链接，但 GitHub 复杂前端资源、登录态、接口限制等仍可能受上游策略影响。
+- GitHub 页面代理会重写 GitHub 页面、静态资源和 Release 下载相关链接，但登录态、接口限制等仍可能受上游策略影响。
 - 不要在公开服务中记录或暴露用户的认证请求头、Cookie 或 Token。

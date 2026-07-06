@@ -1,5 +1,16 @@
 const DOCKER_REGISTRY = "https://registry-1.docker.io";
 const DOCKER_AUTH = "https://auth.docker.io/token";
+const GITHUB_HOSTS = new Set([
+  "github.com",
+  "api.github.com",
+  "gist.github.com",
+  "github.githubassets.com",
+  "avatars.githubusercontent.com",
+  "raw.githubusercontent.com",
+  "objects.githubusercontent.com",
+  "user-images.githubusercontent.com",
+  "camo.githubusercontent.com"
+]);
 
 export default {
   async fetch(request) {
@@ -80,25 +91,45 @@ async function githubProxy(request, url) {
   if (!["GET", "HEAD"].includes(request.method)) {
     return new Response("github proxy only supports read requests", { status: 405 });
   }
-  const upstreamPath = githubPath(url.pathname);
-  const upstream = new URL(upstreamPath + url.search, "https://github.com");
+  const upstream = githubTarget(url);
+  if (!upstream) {
+    return new Response("unsupported github upstream host", { status: 400 });
+  }
   const response = await fetch(upstream, copyRequest(request));
   const headers = new Headers(response.headers);
   headers.delete("content-security-policy");
   headers.delete("content-security-policy-report-only");
   if (headers.has("location")) {
-    headers.set("location", headers.get("location").replace("https://github.com", url.origin));
+    headers.set("location", rewriteURL(headers.get("location"), url.origin));
   }
   const contentType = headers.get("content-type") || "";
-  if (!contentType.includes("text/html")) {
+  if (!shouldRewriteBody(contentType, upstream.hostname)) {
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
   }
-  const html = await response.text();
-  return new Response(html.replaceAll("https://github.com", url.origin), {
+  const text = await response.text();
+  headers.delete("content-length");
+  return new Response(rewriteBody(text, url.origin, contentType, upstream.hostname), {
     status: response.status,
     statusText: response.statusText,
     headers
   });
+}
+
+function githubTarget(url) {
+  let host = "github.com";
+  let pathname = url.pathname;
+  if (pathname.startsWith("/_hubproxy/")) {
+    const rest = pathname.replace(/^\/_hubproxy\//, "");
+    const slashIndex = rest.indexOf("/");
+    host = slashIndex >= 0 ? rest.slice(0, slashIndex) : rest;
+    pathname = slashIndex >= 0 ? rest.slice(slashIndex) : "/";
+    if (!GITHUB_HOSTS.has(host)) {
+      return null;
+    }
+  } else {
+    pathname = githubPath(pathname);
+  }
+  return new URL(pathname + url.search, `https://${host}`);
 }
 
 function githubPath(pathname) {
@@ -109,6 +140,61 @@ function githubPath(pathname) {
     return pathname.replace(/^\/github/, "");
   }
   return pathname;
+}
+
+function rewriteHTML(html, origin) {
+  let rewritten = html
+    .replaceAll("https://github.com", origin)
+    .replaceAll("http://github.com", origin)
+    .replaceAll("//github.com", origin);
+  for (const host of GITHUB_HOSTS) {
+    if (host === "github.com") {
+      continue;
+    }
+    const proxied = `${origin}/_hubproxy/${host}`;
+    rewritten = rewritten
+      .replaceAll(`https://${host}`, proxied)
+      .replaceAll(`http://${host}`, proxied)
+      .replaceAll(`//${host}`, proxied);
+  }
+  return rewritten;
+}
+
+function shouldRewriteBody(contentType, host) {
+  return contentType.includes("text/html") ||
+    contentType.includes("text/css") ||
+    (contentType.includes("javascript") && host === "github.githubassets.com");
+}
+
+function rewriteBody(text, origin, contentType, host) {
+  if (contentType.includes("text/html")) {
+    return rewriteHTML(text, origin);
+  }
+  if (host === "github.githubassets.com") {
+    const proxiedAssets = `${origin}/_hubproxy/${host}/assets/`;
+    return text
+      .replaceAll("\"/assets/", `"${proxiedAssets}`)
+      .replaceAll("'/assets/", `'${proxiedAssets}`)
+      .replaceAll("(/assets/", `(${proxiedAssets}`);
+  }
+  return text;
+}
+
+function rewriteURL(value, origin) {
+  try {
+    const parsed = new URL(value);
+    if (!GITHUB_HOSTS.has(parsed.hostname)) {
+      return value;
+    }
+    if (parsed.hostname === "github.com") {
+      parsed.protocol = "https:";
+      parsed.host = new URL(origin).host;
+      return parsed.toString();
+    }
+    return `${origin}/_hubproxy/${parsed.hostname}${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch (_) {
+    return value;
+  }
 }
 
 function copyRequest(request) {

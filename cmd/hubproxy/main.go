@@ -25,6 +25,7 @@ func main() {
 		_, _ = w.Write([]byte(`{"status":"ok"}`))
 	})
 	mux.HandleFunc("/v2/", dockerProxy.ServeHTTP)
+	mux.HandleFunc("/_hubproxy/", githubProxy.ServeHTTP)
 	mux.HandleFunc("/github", githubProxy.ServeHTTP)
 	mux.HandleFunc("/github/", githubProxy.ServeHTTP)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
