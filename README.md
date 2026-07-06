@@ -12,7 +12,7 @@ ToHub 是一个轻量中转代理，支持 Docker Hub Registry Mirror 和 GitHub
 
 点击下面按钮可通过 Cloudflare 一键部署：
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/trah01/tohub)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Ftrah01%2Ftohub)
 
 部署完成后，假设地址为：
 
@@ -45,7 +45,7 @@ wrangler login
 wrangler deploy
 ```
 
-如果要绑定自定义域名，可在 `wrangler.toml` 中配置：
+仓库内的 `wrangler.jsonc` 只包含通用部署配置。如果要绑定自定义域名，可在本地 `wrangler.toml` 中配置：
 
 ```toml
 name = "tohub"
