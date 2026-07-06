@@ -65,6 +65,35 @@ h2 {
   line-height: 1.7;
 }
 
+.github-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  color: #ffffff;
+  background: var(--text);
+  border: 1px solid var(--text);
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.github-button:hover {
+  background: #2f333a;
+  border-color: #2f333a;
+}
+
+.github-button:focus {
+  outline: 2px solid rgba(31, 111, 235, 0.28);
+  outline-offset: 2px;
+}
+
+.github-button svg {
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
 .panel {
   margin-top: 18px;
   padding: 24px;
