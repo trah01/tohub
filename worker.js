@@ -118,8 +118,8 @@ async function githubProxy(request, url) {
 function githubTarget(url) {
   let host = "github.com";
   let pathname = url.pathname;
-  if (pathname.startsWith("/_hubproxy/")) {
-    const rest = pathname.replace(/^\/_hubproxy\//, "");
+  if (pathname.startsWith("/_tohub/") || pathname.startsWith("/_hubproxy/")) {
+    const rest = pathname.replace(/^\/_(tohub|hubproxy)\//, "");
     const slashIndex = rest.indexOf("/");
     host = slashIndex >= 0 ? rest.slice(0, slashIndex) : rest;
     pathname = slashIndex >= 0 ? rest.slice(slashIndex) : "/";
@@ -151,7 +151,7 @@ function rewriteHTML(html, origin) {
     if (host === "github.com") {
       continue;
     }
-    const proxied = `${origin}/_hubproxy/${host}`;
+    const proxied = `${origin}/_tohub/${host}`;
     rewritten = rewritten
       .replaceAll(`https://${host}`, proxied)
       .replaceAll(`http://${host}`, proxied)
@@ -171,7 +171,7 @@ function rewriteBody(text, origin, contentType, host) {
     return rewriteHTML(text, origin);
   }
   if (host === "github.githubassets.com") {
-    const proxiedAssets = `${origin}/_hubproxy/${host}/assets/`;
+    const proxiedAssets = `${origin}/_tohub/${host}/assets/`;
     return text
       .replaceAll("\"/assets/", `"${proxiedAssets}`)
       .replaceAll("'/assets/", `'${proxiedAssets}`)
@@ -191,7 +191,7 @@ function rewriteURL(value, origin) {
       parsed.host = new URL(origin).host;
       return parsed.toString();
     }
-    return `${origin}/_hubproxy/${parsed.hostname}${parsed.pathname}${parsed.search}${parsed.hash}`;
+    return `${origin}/_tohub/${parsed.hostname}${parsed.pathname}${parsed.search}${parsed.hash}`;
   } catch (_) {
     return value;
   }
@@ -220,7 +220,7 @@ function indexHTML(origin) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HubProxy</title>
+  <title>ToHub</title>
   <style>
     body{margin:0;background:#f7f8fa;color:#16181d;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     main{width:min(920px,calc(100% - 32px));margin:0 auto;padding:56px 0}
@@ -240,7 +240,7 @@ function indexHTML(origin) {
 <body>
 <main>
   <p>Docker Hub 与 GitHub 中转代理</p>
-  <h1>HubProxy</h1>
+  <h1>ToHub</h1>
   <p>把当前域名配置为 Docker Registry Mirror，并将 GitHub 链接转换为可代理访问的地址。</p>
   <section>
     <h2>Docker daemon.json</h2>
@@ -250,7 +250,7 @@ function indexHTML(origin) {
     <h2>GitHub 代理访问</h2>
     <p><a class="button" href="/github/" target="_blank" rel="noreferrer">访问首页</a></p>
     <form id="form" class="row">
-      <input id="input" placeholder="github.com/trah01 或 trah01/hubproxy">
+      <input id="input" placeholder="github.com/trah01 或 trah01/tohub">
       <button>转换</button>
     </form>
     <div id="result" class="result"><span id="url"></span><a id="open" class="button" target="_blank" rel="noreferrer">打开</a></div>

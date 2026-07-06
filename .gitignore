@@ -2,6 +2,7 @@
 
 # Go build and test output
 /hubproxy
+/tohub
 *.test
 *.out
 .gocache/

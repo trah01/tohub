@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"hubproxy/internal/proxy"
+	"tohub/internal/proxy"
 )
 
 func main() {
@@ -25,6 +25,7 @@ func main() {
 		_, _ = w.Write([]byte(`{"status":"ok"}`))
 	})
 	mux.HandleFunc("/v2/", dockerProxy.ServeHTTP)
+	mux.HandleFunc("/_tohub/", githubProxy.ServeHTTP)
 	mux.HandleFunc("/_hubproxy/", githubProxy.ServeHTTP)
 	mux.HandleFunc("/github", githubProxy.ServeHTTP)
 	mux.HandleFunc("/github/", githubProxy.ServeHTTP)
@@ -42,7 +43,7 @@ func main() {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
-	log.Printf("hubproxy listening on %s", addr)
+	log.Printf("tohub listening on %s", addr)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HubProxy</title>
+    <title>ToHub</title>
     <link rel="stylesheet" href="/assets/styles.css">
   </head>
   <body>
     <main class="shell">
       <section class="intro">
         <p class="eyebrow">Docker Hub 与 GitHub 中转代理</p>
-        <h1>HubProxy</h1>
+        <h1>ToHub</h1>
         <p class="summary">把当前域名配置为 Docker Registry Mirror，并将 GitHub 链接转换为可代理访问的地址。</p>
       </section>
 
@@ -33,7 +33,7 @@
         <form class="converter" id="githubForm">
           <label for="githubInput">GitHub URL 或路径</label>
           <div class="input-row">
-            <input id="githubInput" name="githubInput" type="text" placeholder="github.com/trah01 或 trah01/hubproxy">
+            <input id="githubInput" name="githubInput" type="text" placeholder="github.com/trah01 或 trah01/tohub">
             <button type="submit">转换</button>
           </div>
         </form>

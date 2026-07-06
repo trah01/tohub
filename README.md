@@ -1,6 +1,6 @@
-# HubProxy
+# ToHub
 
-HubProxy 是一个用于 Docker Hub 和 GitHub 的轻量中转代理。
+ToHub 是一个用于 Docker Hub 和 GitHub 的轻量中转代理。
 
 ## 功能
 
@@ -18,7 +18,7 @@ docker compose up -d --build
 查看日志：
 
 ```bash
-docker compose logs -f hubproxy
+docker compose logs -f tohub
 ```
 
 检查状态：
@@ -62,9 +62,9 @@ https://proxy.example.com/trah01
 https://proxy.example.com/github/trah01
 ```
 
-首页转换框支持 `github.com/trah01`、`https://github.com/trah01` 和 `trah01/hubproxy`。
+首页转换框支持 `github.com/trah01`、`https://github.com/trah01` 和 `trah01/tohub`。
 
-GitHub 页面中的静态资源和 Release 下载会通过 `/_hubproxy/<host>/...` 进行中转。该通道仅允许 GitHub 相关域名，避免成为开放代理。
+GitHub 页面中的静态资源和 Release 下载会通过 `/_tohub/<host>/...` 进行中转。该通道仅允许 GitHub 相关域名，避免成为开放代理。
 
 ## Cloudflare Worker
 

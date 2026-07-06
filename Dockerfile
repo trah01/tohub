@@ -3,11 +3,11 @@ WORKDIR /src
 COPY go.mod ./
 COPY cmd ./cmd
 COPY internal ./internal
-RUN go build -o /out/hubproxy ./cmd/hubproxy
+RUN go build -o /out/tohub ./cmd/tohub
 
 FROM alpine:3.20
 WORKDIR /app
-COPY --from=builder /out/hubproxy /usr/local/bin/hubproxy
+COPY --from=builder /out/tohub /usr/local/bin/tohub
 COPY web ./web
 EXPOSE 8080
-ENTRYPOINT ["hubproxy"]
+ENTRYPOINT ["tohub"]

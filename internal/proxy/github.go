@@ -93,8 +93,8 @@ func (p *GitHubProxy) githubTarget(r *http.Request) (*url.URL, error) {
 	path := r.URL.EscapedPath()
 	host := "github.com"
 
-	if strings.HasPrefix(path, "/_hubproxy/") {
-		trimmed := strings.TrimPrefix(path, "/_hubproxy/")
+	if strings.HasPrefix(path, "/_tohub/") || strings.HasPrefix(path, "/_hubproxy/") {
+		trimmed := strings.TrimPrefix(strings.TrimPrefix(path, "/_tohub/"), "/_hubproxy/")
 		hostPart, pathPart, ok := strings.Cut(trimmed, "/")
 		if !ok {
 			pathPart = ""
@@ -225,7 +225,7 @@ func (p *GitHubProxy) baseURL(r *http.Request) string {
 }
 
 func (p *GitHubProxy) proxiedHostBase(r *http.Request, host string) string {
-	return p.baseURL(r) + "/_hubproxy/" + host
+	return p.baseURL(r) + "/_tohub/" + host
 }
 
 func isAllowedGitHubHost(host string) bool {

@@ -1,7 +1,9 @@
+name: tohub
+
 services:
-  hubproxy:
+  tohub:
     build: .
-    container_name: hubproxy
+    container_name: tohub
     restart: unless-stopped
     ports:
       - "8080:8080"
