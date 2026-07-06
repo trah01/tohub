@@ -10,6 +10,8 @@
 # Local environment and secrets
 .env
 .env.*
+.wrangler/
+wrangler.toml
 *.pem
 *.key
 *.crt
