@@ -68,13 +68,116 @@ GitHub 页面中的静态资源和 Release 下载会通过 `/_tohub/<host>/...` 
 
 ## Cloudflare Worker
 
-`worker.js` 是独立版本，可直接作为 Cloudflare Worker 脚本部署。
+`worker.js` 是独立版本，可直接作为 Cloudflare Worker 脚本部署，不依赖 Go 服务、Docker 或额外存储。
 
 Worker 版本同样支持：
 
 - `/v2/` Docker Registry Mirror 请求。
 - `/owner/repo` GitHub 页面代理。
 - `/` 首页配置说明。
+
+### 方式一：使用 Wrangler 部署
+
+安装并登录 Wrangler：
+
+```bash
+npm install -g wrangler
+wrangler login
+```
+
+在项目根目录创建 `wrangler.toml`：
+
+```toml
+name = "tohub"
+main = "worker.js"
+compatibility_date = "2026-07-06"
+```
+
+部署：
+
+```bash
+wrangler deploy
+```
+
+部署成功后，Wrangler 会输出一个 `*.workers.dev` 地址。假设地址是：
+
+```text
+https://tohub.<your-subdomain>.workers.dev
+```
+
+可以这样检查服务：
+
+```bash
+curl https://tohub.<your-subdomain>.workers.dev/healthz
+curl -I https://tohub.<your-subdomain>.workers.dev/v2/
+```
+
+浏览器访问首页：
+
+```text
+https://tohub.<your-subdomain>.workers.dev
+```
+
+GitHub 代理示例：
+
+```text
+https://tohub.<your-subdomain>.workers.dev/trah01/tohub
+https://tohub.<your-subdomain>.workers.dev/github/trah01/tohub
+```
+
+Docker Registry Mirror 示例：
+
+```json
+{
+  "registry-mirrors": ["https://tohub.<your-subdomain>.workers.dev"]
+}
+```
+
+修改 Docker 配置后需要重启 Docker 服务，再继续使用原有的 `docker pull` 命令。
+
+### 方式二：绑定自定义域名
+
+如果域名已经接入 Cloudflare，可以在 `wrangler.toml` 中增加自定义域名配置：
+
+```toml
+name = "tohub"
+main = "worker.js"
+compatibility_date = "2026-07-06"
+
+[[routes]]
+pattern = "tohub.example.com"
+custom_domain = true
+```
+
+然后重新部署：
+
+```bash
+wrangler deploy
+```
+
+部署完成后，将 Docker mirror 地址和 GitHub 代理地址改为你的自定义域名：
+
+```json
+{
+  "registry-mirrors": ["https://tohub.example.com"]
+}
+```
+
+```text
+https://tohub.example.com/trah01/tohub
+```
+
+### Cloudflare 控制台部署
+
+也可以在 Cloudflare 控制台手动创建 Worker：
+
+1. 进入 Workers & Pages。
+2. 创建 Worker。
+3. 将 `worker.js` 的内容粘贴到在线编辑器。
+4. 保存并部署。
+5. 在 Settings 或 Triggers 中绑定 `workers.dev` 或自定义域名。
+
+控制台方式适合快速测试；长期维护建议使用 Wrangler，以便通过 Git 管理脚本变更。
 
 ## 注意事项
 
