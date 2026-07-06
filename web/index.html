@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HubProxy</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro">
+        <p class="eyebrow">Docker Hub 与 GitHub 中转代理</p>
+        <h1>HubProxy</h1>
+        <p class="summary">把当前域名配置为 Docker Registry Mirror，并将 GitHub 链接转换为可代理访问的地址。</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Docker daemon.json</h2>
+          <button class="icon-button" id="copyDockerConfig" type="button" aria-label="复制 Docker 配置">
+            <span aria-hidden="true">Copy</span>
+          </button>
+        </div>
+        <pre><code id="dockerConfig"></code></pre>
+        <p class="note">保存后重启 Docker 服务，然后继续使用原有的 docker pull 命令。</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>GitHub 代理访问</h2>
+          <a class="button-link" id="githubHome" href="/github/" target="_blank" rel="noreferrer">访问首页</a>
+        </div>
+        <form class="converter" id="githubForm">
+          <label for="githubInput">GitHub URL 或路径</label>
+          <div class="input-row">
+            <input id="githubInput" name="githubInput" type="text" placeholder="github.com/trah01 或 trah01/hubproxy">
+            <button type="submit">转换</button>
+          </div>
+        </form>
+        <div class="result" id="githubResult" hidden>
+          <span id="githubProxyURL"></span>
+          <a id="githubOpen" href="/" target="_blank" rel="noreferrer">打开</a>
+        </div>
+      </section>
+    </main>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

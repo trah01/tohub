@@ -1,0 +1,10 @@
+services:
+  hubproxy:
+    build: .
+    container_name: hubproxy
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      ADDR: ":8080"
+      PUBLIC_BASE_URL: "http://localhost:8080"

@@ -1,0 +1,20 @@
+.DS_Store
+
+# Go build and test output
+/hubproxy
+*.test
+*.out
+.gocache/
+
+# Local environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# Logs and temporary files
+*.log
+tmp/
+dist/
+build/
