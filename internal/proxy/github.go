@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -218,10 +219,22 @@ func (p *GitHubProxy) rewriteURL(value string, r *http.Request) string {
 }
 
 func (p *GitHubProxy) baseURL(r *http.Request) string {
-	if p.publicBaseURL != "" {
+	if p.publicBaseURL != "" && !p.shouldUseRequestBaseURL(r) {
 		return p.publicBaseURL
 	}
 	return scheme(r) + "://" + r.Host
+}
+
+func (p *GitHubProxy) shouldUseRequestBaseURL(r *http.Request) bool {
+	if p.publicBaseURL == "" {
+		return true
+	}
+	publicURL, err := url.Parse(p.publicBaseURL)
+	if err != nil {
+		return false
+	}
+	requestHost := hostname(r.Host)
+	return isLoopbackHost(publicURL.Hostname()) && isLoopbackHost(requestHost)
 }
 
 func (p *GitHubProxy) proxiedHostBase(r *http.Request, host string) string {
@@ -231,4 +244,21 @@ func (p *GitHubProxy) proxiedHostBase(r *http.Request, host string) string {
 func isAllowedGitHubHost(host string) bool {
 	_, ok := githubUpstreamHosts[strings.ToLower(host)]
 	return ok
+}
+
+func isLoopbackHost(host string) bool {
+	switch strings.ToLower(host) {
+	case "localhost", "127.0.0.1", "::1":
+		return true
+	default:
+		return false
+	}
+}
+
+func hostname(hostport string) string {
+	host, _, err := net.SplitHostPort(hostport)
+	if err == nil {
+		return host
+	}
+	return strings.Trim(hostport, "[]")
 }
